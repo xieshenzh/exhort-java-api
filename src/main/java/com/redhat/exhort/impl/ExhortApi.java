@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.exhort.Api;
 import com.redhat.exhort.Provider;
-import com.redhat.exhort.api.AnalysisReport;
+import com.redhat.exhort.api.v3.AnalysisReport;
 import com.redhat.exhort.tools.Ecosystem;
 
 import jakarta.mail.MessagingException;

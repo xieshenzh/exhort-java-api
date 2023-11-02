@@ -15,6 +15,8 @@ module com.redhat.exhort {
 
   exports com.redhat.exhort;
   exports com.redhat.exhort.api;
+  exports com.redhat.exhort.api.v3;
+  exports com.redhat.exhort.api.v4;
   exports com.redhat.exhort.api.serialization;
   exports com.redhat.exhort.impl;
   exports com.redhat.exhort.sbom;

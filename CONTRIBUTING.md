@@ -52,7 +52,7 @@ API responses.<br/>
 The generated classes target package is the `com.redhat.exhort.api`. It is skipped when calculating coverage
 thresholds. **Avoid writing code in this package.**<br/> 
 When the [Backend's spec file][1] is modified, we need to **manually** copy it here in
-[src/main/resources/exhort](src/main/resources/exhort/openapi.yaml),
+[src/main/resources/exhort](src/main/resources/exhort/v3/openapi.yaml),
 for the *openapi-generator-maven-plugin* to pick it up at **build time**.
 
 ### Modular (JPMS)

@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import com.redhat.exhort.api.AnalysisReport;
+import com.redhat.exhort.api.v3.AnalysisReport;
 
 /** The Api interface is used for contracting API implementations. **/
 public interface Api {
