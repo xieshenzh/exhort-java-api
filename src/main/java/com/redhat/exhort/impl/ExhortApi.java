@@ -537,6 +537,18 @@ public final class ExhortApi implements Api {
         "Image Analysis");
   }
 
+  @Override
+  public CompletableFuture<MixedReports> imageAnalysisMixed(final Set<ImageRef> imageRefs)
+      throws IOException {
+    return this.performBatchAnalysis(
+        () -> getBatchImageSboms(imageRefs),
+        MediaType.MULTIPART_MIXED,
+        HttpResponse.BodyHandlers.ofByteArray(),
+        this::getBatchImageAnalysisReportsMixed,
+        MixedReports::new,
+        "Image Analysis");
+  }
+
   Map<String, JsonNode> getBatchImageSboms(final Set<ImageRef> imageRefs) {
     return imageRefs.parallelStream()
         .map(
@@ -574,6 +586,45 @@ public final class ExhortApi implements Api {
       }
     } else {
       return Collections.emptyMap();
+    }
+  }
+
+  MixedReports getBatchImageAnalysisReportsMixed(final HttpResponse<byte[]> httpResponse) {
+    if (httpResponse.statusCode() == 200) {
+      byte[] htmlPart = null;
+      Map<ImageRef, AnalysisReport> jsonPart = null;
+      var ds = new ByteArrayDataSource(httpResponse.body(), MediaType.MULTIPART_MIXED.toString());
+      try {
+        var mp = new MimeMultipart(ds);
+        for (var i = 0; i < mp.getCount(); i++) {
+          if (Objects.isNull(htmlPart)
+              && MediaType.TEXT_HTML.toString().equals(mp.getBodyPart(i).getContentType())) {
+            htmlPart = mp.getBodyPart(i).getInputStream().readAllBytes();
+          }
+          if (Objects.isNull(jsonPart)
+              && MediaType.APPLICATION_JSON.toString().equals(mp.getBodyPart(i).getContentType())) {
+            Map<?, ?> reports =
+                this.mapper.readValue(mp.getBodyPart(i).getInputStream().readAllBytes(), Map.class);
+            jsonPart =
+                reports.entrySet().stream()
+                    .collect(
+                        Collectors.toMap(
+                            e -> {
+                              try {
+                                return new ImageRef(new PackageURL(e.getKey().toString()));
+                              } catch (MalformedPackageURLException ex) {
+                                throw new RuntimeException(ex);
+                              }
+                            },
+                            e -> mapper.convertValue(e.getValue(), AnalysisReport.class)));
+          }
+        }
+      } catch (IOException | MessagingException e) {
+        throw new RuntimeException(e);
+      }
+      return new MixedReports(Objects.requireNonNull(htmlPart), Objects.requireNonNull(jsonPart));
+    } else {
+      return new MixedReports();
     }
   }
 

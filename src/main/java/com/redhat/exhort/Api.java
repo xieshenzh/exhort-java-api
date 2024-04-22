@@ -19,6 +19,7 @@ import com.redhat.exhort.api.AnalysisReport;
 import com.redhat.exhort.image.ImageRef;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -60,6 +61,34 @@ public interface Api {
       if (this == o) return true;
       if (o == null || this.getClass() != o.getClass()) return false;
       var that = (MixedReport) o;
+      return Arrays.equals(this.html, that.html) && Objects.equals(this.json, that.json);
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * Objects.hash(json) + Arrays.hashCode(html);
+    }
+  }
+
+  class MixedReports {
+    public final byte[] html;
+    public final Map<ImageRef, AnalysisReport> json;
+
+    public MixedReports(final byte[] html, final Map<ImageRef, AnalysisReport> json) {
+      this.html = html;
+      this.json = json;
+    }
+
+    public MixedReports() {
+      this.html = new byte[0];
+      this.json = new HashMap<>();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (this == o) return true;
+      if (o == null || this.getClass() != o.getClass()) return false;
+      var that = (MixedReports) o;
       return Arrays.equals(this.html, that.html) && Objects.equals(this.json, that.json);
     }
 
@@ -113,4 +142,6 @@ public interface Api {
       throws IOException;
 
   CompletableFuture<byte[]> imageAnalysisHtml(Set<ImageRef> imageRefs) throws IOException;
+
+  CompletableFuture<MixedReports> imageAnalysisMixed(Set<ImageRef> imageRefs) throws IOException;
 }
